@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public final static int DISCOVERY_STOPPED = 1;
     public final static int DISCOVERY_STARTED = 2;
     private int currentDiscoveryState = DISCOVERY_STOPPED;
+    private Button buttonStartStopDiscovery;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,16 +62,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 1) {
-            initiateDiscovery();
+            initializeDiscovery();
         }
     }
 
-    private void initiateDiscovery() {
+    private void initializeDiscovery() {
         Button b = (Button)findViewById(R.id.buttonDiscover);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reDiscovery();
+            }
+        });
+        buttonStartStopDiscovery = (Button) findViewById(R.id.buttonStartStop);
+        buttonStartStopDiscovery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startStopDiscovery();
             }
         });
         textViewDeviceAddress = (TextView)findViewById(R.id.textViewDeviceAddress);
@@ -82,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
-        discovery();
     }
 
     @SuppressLint("MissingPermission")
@@ -93,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess() {
                     currentDiscoveryState = DISCOVERY_STARTED;
                     System.out.println("discoverPeers Success");
+                    buttonStartStopDiscovery.setText("STOP");
                 }
 
                 @Override
@@ -103,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void startStopDiscovery(){
+        if(currentDiscoveryState == DISCOVERY_STOPPED) discovery();
+        if(currentDiscoveryState == DISCOVERY_STARTED) stopDiscovery(false);
+    }
+
     public void stopDiscovery(boolean reDiscovery){
         if(currentDiscoveryState == DISCOVERY_STARTED)
             manager.stopPeerDiscovery(channel,new WifiP2pManager.ActionListener() {
@@ -111,7 +124,9 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess() {
                     currentDiscoveryState = DISCOVERY_STOPPED;
                     System.out.println("stopPeerDiscovery Success");
-                    discovery();
+                    buttonStartStopDiscovery.setText("START");
+                    if(reDiscovery)
+                        discovery();
                 }
 
                 @Override
