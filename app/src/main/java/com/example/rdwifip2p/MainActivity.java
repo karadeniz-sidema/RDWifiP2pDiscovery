@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setThisWifiP2pDevice(WifiP2pDevice device){
         System.out.println("setThisWifiP2pDevice() "+device.deviceName);
-        textViewDeviceAddress.setText(device.deviceAddress);
+        textViewDeviceAddress.setText(device.deviceName+"\n"+device.deviceAddress);
     }
 
     public void updateWifiP2pDeviceList(WifiP2pDeviceList newPeersList){
@@ -157,8 +157,10 @@ public class MainActivity extends AppCompatActivity {
         listP2pDevices.addAll(newPeersList.getDeviceList());
         Iterator<WifiP2pDevice> iterator = listP2pDevices.iterator();
         while(iterator.hasNext()){
-            String address = iterator.next().deviceAddress;
-            listAddressDevices.add(address);
+            WifiP2pDevice p2pDevice = iterator.next();
+            String name = p2pDevice.deviceName;
+            String address = p2pDevice.deviceAddress;
+            listAddressDevices.add(name+"\n"+address);
         }
         adapter.notifyDataSetChanged();
     }
